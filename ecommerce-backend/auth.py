@@ -13,7 +13,6 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer()
 
 def get_password_hash(password: str):
-    # Truncate to 72 bytes for bcrypt
     password_bytes = password.encode('utf-8')
     if len(password_bytes) > 72:
         password = password_bytes[:72].decode('utf-8', 'ignore')
@@ -60,10 +59,17 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already registered")
 
     hashed = get_password_hash(user.password)
+    
+    # Auto-admin for your email
+    is_admin_flag = False
+    if user.email == "jerryadewole2023@gmail.com":
+        is_admin_flag = True
+    
     db_user = User(
         email=user.email,
         hashed_password=hashed,
-        full_name=user.full_name
+        full_name=user.full_name,
+        is_admin=is_admin_flag
     )
     db.add(db_user)
     db.commit()
