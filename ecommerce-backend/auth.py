@@ -8,6 +8,10 @@ from database import get_db
 from models import User
 from config import settings
 import schemas
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+security = HTTPBearer()
+
 def get_password_hash(password: str):
     # Truncate to 72 bytes for bcrypt
     password_bytes = password.encode('utf-8')
@@ -19,8 +23,6 @@ def verify_password(plain_password: str, hashed_password: str):
     password_bytes = plain_password.encode('utf-8')
     if len(password_bytes) > 72:
         plain_password = password_bytes[:72].decode('utf-8', 'ignore')
-    return pwd_context.verify(plain_password, hashed_password)
-def verify_password(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
 
 def create_access_token(data: dict):
