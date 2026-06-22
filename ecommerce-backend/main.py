@@ -3,15 +3,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import os
 
-# Import database
 from database import engine, Base
+import models
+from auth import router as auth_router
+from products import router as products_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: create tables
     Base.metadata.create_all(bind=engine)
     yield
-    # Shutdown
     print("Shutting down...")
 
 app = FastAPI(
@@ -20,8 +20,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS - CRITICAL for your frontend
-origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,https://shop-blush-nine.vercel.app").split(",")
 
 app.add_middleware(
     CORSMiddleware,
@@ -30,6 +29,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth_router)
+app.include_router(products_router)
 
 @app.get("/")
 def root():
