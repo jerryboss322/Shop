@@ -4,9 +4,7 @@ from contextlib import asynccontextmanager
 import os
 
 from database import engine, Base
-import models
-from auth import router as auth_router
-from products import router as products_router
+from auth import router as auth_router  # NOW THIS WORKS
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -14,14 +12,9 @@ async def lifespan(app: FastAPI):
     yield
     print("Shutting down...")
 
-app = FastAPI(
-    title="ShopHub API",
-    version="1.0.0",
-    lifespan=lifespan
-)
+app = FastAPI(title="ShopHub API", version="1.0.0", lifespan=lifespan)
 
-origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,https://shop-blush-nine.vercel.app").split(",")
-
+origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -30,8 +23,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include routers
 app.include_router(auth_router)
-app.include_router(products_router)
 
 @app.get("/")
 def root():
