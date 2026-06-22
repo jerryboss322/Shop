@@ -1,12 +1,12 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
+from datetime import datetime
 
-class UserSignup(BaseModel):
-    first_name: str
-    last_name: str
+# Auth
+class UserCreate(BaseModel):
     email: EmailStr
-    phone_number: str
     password: str
+    full_name: Optional[str] = None
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -14,34 +14,49 @@ class UserLogin(BaseModel):
 
 class UserResponse(BaseModel):
     id: int
-    first_name: str
-    last_name: str
     email: str
-    phone_number: Optional[str]
+    full_name: Optional[str]
     is_admin: bool
-    
+
     class Config:
         from_attributes = True
 
-class ProductCreate(BaseModel):
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    user: UserResponse
+
+# Categories
+class CategoryBase(BaseModel):
     name: str
     description: Optional[str] = None
-    price: int
-    stock_quantity: int = 0
-    category_id: Optional[int] = None
     image_url: Optional[str] = None
 
-class ProductUpdate(BaseModel):
-    name: Optional[str] = None
+class CategoryCreate(CategoryBase):
+    pass
+
+class CategoryResponse(CategoryBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+# Products
+class ProductBase(BaseModel):
+    name: str
     description: Optional[str] = None
-    price: Optional[int] = None
-    stock_quantity: Optional[int] = None
-    is_active: Optional[bool] = None
+    price: float
+    image_url: Optional[str] = None
+    stock: int = 0
+    category_id: Optional[int] = None
 
-class CartAdd(BaseModel):
-    product_id: int
-    quantity: int = 1
+class ProductCreate(ProductBase):
+    pass
 
-class OrderCreate(BaseModel):
-    shipping_address: str
-    coupon_code: Optional[str] = None
+class ProductResponse(ProductBase):
+    id: int
+    created_at: datetime
+    category: Optional[CategoryResponse] = None
+
+    class Config:
+        from_attributes = True
