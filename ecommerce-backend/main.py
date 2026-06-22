@@ -4,8 +4,8 @@ from contextlib import asynccontextmanager
 import os
 
 # Import your routers
-from routers import auth, products, orders, admin
-from database import engine, Base
+from auth import router as auth_router
+# or just comment out the missing ones for nowfrom database import engine, Base
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
